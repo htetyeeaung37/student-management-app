@@ -1,22 +1,26 @@
 -- CreateTable
 CREATE TABLE "Admin" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Major" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT
+    "description" TEXT,
+
+    CONSTRAINT "Major_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Student" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "studentId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "age" INTEGER NOT NULL,
@@ -25,9 +29,10 @@ CREATE TABLE "Student" (
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "academicYear" INTEGER NOT NULL,
-    "enrollmentDate" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "enrollmentDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "majorId" INTEGER NOT NULL,
-    CONSTRAINT "Student_majorId_fkey" FOREIGN KEY ("majorId") REFERENCES "Major" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+
+    CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -41,3 +46,6 @@ CREATE UNIQUE INDEX "Student_studentId_key" ON "Student"("studentId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Student_email_key" ON "Student"("email");
+
+-- AddForeignKey
+ALTER TABLE "Student" ADD CONSTRAINT "Student_majorId_fkey" FOREIGN KEY ("majorId") REFERENCES "Major"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
