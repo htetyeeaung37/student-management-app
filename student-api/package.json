@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "ts-node src/server.ts",
     "build": "tsc"
   },
