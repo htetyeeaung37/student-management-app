@@ -166,7 +166,7 @@ function useOutsideClick(anchorRef: React.RefObject<HTMLDivElement>, portalId: s
 function GenderDropdown({ value, onChange }: { value: string; onChange: (v: string) => void; }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!);
 
   useOutsideClick(ref, "gender-panel", () => { setOpen(false); setFocused(false); });
 
@@ -204,7 +204,7 @@ function GenderDropdown({ value, onChange }: { value: string; onChange: (v: stri
 function MajorDropdown({ value, majors, onChange }: { value: string; majors: Major[]; onChange: (v: string) => void; }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null!);
   const selectedName = majors.find((m) => String(m.id) === value)?.name;
 
   useOutsideClick(ref, "major-panel", () => { setOpen(false); setFocused(false); });
