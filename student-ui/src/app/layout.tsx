@@ -6,7 +6,7 @@ import NavbarWrapper from "@/components/NavbarWrapper";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Student University",
+  title: "HIU Student University",
   description: "Student Management System",
 };
 
