@@ -541,7 +541,7 @@ export default function StudentModal({
                           {...handlers}
                         />
                         {ageError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold mt-1.5 ml-2 uppercase tracking-wider animate-in fade-in duration-200">
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold mt-1.5 ml-2 tracking-wider animate-in fade-in duration-200">
                             {ageError}
                           </p>
                         )}
