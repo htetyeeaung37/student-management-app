@@ -518,13 +518,13 @@ export default function StudentModal({
                 <div>
                   <Field label="Age" icon={Calendar}>
                     {(focused: any, handlers: any) => (
-                      <div className="w-full">
+                      <div className="w-full relative">
                         <input
                           type="number"
                           value={form.age}
                           onChange={(e) => {
                             const val = e.target.value;
-                            onFormChange({ ...form, age: e.target.value });
+                            onFormChange({ ...form, age: val });
 
                             if (val !== "") {
                               const num = parseInt(val);
@@ -541,7 +541,7 @@ export default function StudentModal({
                           {...handlers}
                         />
                         {ageError && (
-                          <p className="text-[10px] text-rose-500 font-bold mt-1.5 ml-2 uppercase tracking-wider animate-in fade-in duration-200">
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold mt-1.5 ml-2 uppercase tracking-wider animate-in fade-in duration-200">
                             {ageError}
                           </p>
                         )}
