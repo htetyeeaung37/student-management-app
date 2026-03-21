@@ -361,7 +361,11 @@ export default function StudentModal({
 }: Props) {
   const [mounted, setMounted] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [idError, setIdError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [ageError, setAgeError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -453,18 +457,29 @@ export default function StudentModal({
                 <div className="md:col-span-1">
                   <Field label="Student ID" icon={Hash}>
                     {(focused, handlers) => (
-                      <input
-                        type="text"
-                        value={form.studentId}
-                        onChange={(e) =>
-                          onFormChange({ ...form, studentId: e.target.value })
-                        }
-                        placeholder="STU..."
-                        autoComplete="off"
-                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused)}
-                        {...handlers}
-                      />
+                      <div className="w-full relative">
+                        <input
+                          type="text"
+                          value={form.studentId}
+                          onChange={(e) => {
+                            onFormChange({
+                              ...form,
+                              studentId: e.target.value,
+                            });
+                            if (e.target.value) setIdError("");
+                          }}
+                          placeholder="Student ID"
+                          autoComplete="off"
+                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                          style={inputStyle(focused)}
+                          {...handlers}
+                        />
+                        {idError && (
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+                            {idError}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </Field>
                 </div>
@@ -472,18 +487,29 @@ export default function StudentModal({
                 <div className="md:col-span-1">
                   <Field label="Full Name" icon={User}>
                     {(focused, handlers) => (
-                      <input
-                        type="text"
-                        value={form.name}
-                        onChange={(e) =>
-                          onFormChange({ ...form, name: e.target.value })
-                        }
-                        placeholder="Enter full name"
-                        autoComplete="off"
-                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused)}
-                        {...handlers}
-                      />
+                      <div className="w-full relative">
+                        <input
+                          type="text"
+                          value={form.name}
+                          onChange={(e) => {
+                            onFormChange({
+                              ...form,
+                              name: e.target.value,
+                            });
+                            if (e.target.value) setNameError("");
+                          }}
+                          placeholder="Enter Full Name"
+                          autoComplete="off"
+                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                          style={inputStyle(focused)}
+                          {...handlers}
+                        />
+                        {nameError && (
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+                            {nameError}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </Field>
                 </div>
@@ -491,18 +517,26 @@ export default function StudentModal({
                 <div className="md:col-span-2">
                   <Field label="Email Address" icon={Mail}>
                     {(focused, handlers) => (
-                      <input
-                        type="email"
-                        value={form.email}
-                        onChange={(e) =>
-                          onFormChange({ ...form, email: e.target.value })
-                        }
-                        placeholder="name@example.com"
-                        autoComplete="off"
-                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused)}
-                        {...handlers}
-                      />
+                      <div className="w-full relative">
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={(e) => {
+                            onFormChange({ ...form, email: e.target.value });
+                            if (e.target.value) setEmailError("");
+                          }}
+                          placeholder="name@example.com"
+                          autoComplete="off"
+                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                          style={inputStyle(focused)}
+                          {...handlers}
+                        />
+                        {emailError && (
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+                            {emailError}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </Field>
                 </div>
@@ -558,18 +592,28 @@ export default function StudentModal({
                 <div>
                   <Field label="Phone" icon={Phone}>
                     {(focused, handlers) => (
-                      <input
-                        type="text"
-                        value={form.phone}
-                        onChange={(e) =>
-                          onFormChange({ ...form, phone: e.target.value })
-                        }
-                        placeholder="09..."
-                        autoComplete="off"
-                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused)}
-                        {...handlers}
-                      />
+                      <div className="w-full relative">
+                        <input
+                          type="text"
+                          value={form.phone}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            if (val.length <= 11)
+                              onFormChange({ ...form, phone: val });
+                            if (val.length >= 9) setPhoneError("");
+                          }}
+                          placeholder="09xxxxxxxxx"
+                          autoComplete="off"
+                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                          style={inputStyle(focused)}
+                          {...handlers}
+                        />
+                        {phoneError && (
+                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+                            {phoneError}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </Field>
                 </div>
@@ -604,10 +648,36 @@ export default function StudentModal({
               </button>
               <button
                 onClick={() => {
-                  if (!ageError && form.age) {
-                    onSubmit();
-                  } else if (!form.age) {
+                  let hasError = false;
+
+                  if (!form.studentId) {
+                    setIdError("ID is required");
+                    hasError = true;
+                  }
+                  if (!form.name) {
+                    setNameError("Name is required");
+                    hasError = true;
+                  }
+                  if (!form.age) {
                     setAgeError("Age is required");
+                    hasError = true;
+                  } else if (
+                    parseInt(form.age) < 18 ||
+                    parseInt(form.age) > 30
+                  ) {
+                    hasError = true;
+                  }
+
+                  if (!form.phone) {
+                    setPhoneError("Phone is required");
+                    hasError = true;
+                  } else if (form.phone.length < 9) {
+                    setPhoneError("Invalid phone number");
+                    hasError = true;
+                  }
+
+                  if (!hasError) {
+                    onSubmit();
                   }
                 }}
                 className="flex-1 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95 cursor-pointer"
