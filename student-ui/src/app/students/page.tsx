@@ -39,7 +39,7 @@ const emptyForm = {
   name: "",
   age: "",
   township: "",
-  gender: "Male",
+  gender: "",
   email: "",
   phone: "",
   academicYear: new Date().getFullYear(),
