@@ -64,9 +64,10 @@ interface Props {
 const NAVY = "#1A365D";
 const NAVY_DARK = "#0F172A";
 
-const inputStyle = (focused: boolean, hasError?: boolean): React.CSSProperties => ({
+// Input Style - Border နဲ့ Icon အရောင်မပြောင်းစေဖို့ Error prop ကို ဖယ်ရှားလိုက်ပါတယ်
+const inputStyle = (focused: boolean): React.CSSProperties => ({
   backgroundColor: focused ? "#FFFFFF" : "#F8FAFC",
-  border: `1.5px solid ${hasError ? "#f43f5e" : focused ? NAVY : "#E2E8F0"}`,
+  border: `1.5px solid ${focused ? NAVY : "#E2E8F0"}`, // Always Navy on focus, Gray otherwise
   color: NAVY,
   outline: "none",
   WebkitAppearance: "none",
@@ -90,22 +91,23 @@ function Field({
 }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div className="relative pb-5">
+    <div className="relative pb-6"> {/* pb-6 adds space for absolute error message */}
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         {label}
       </label>
       <div className="relative flex items-center">
         <Icon
           className="absolute left-4 w-4 h-4 transition-colors duration-200 pointer-events-none z-10"
-          style={{ color: error ? "#f43f5e" : focused ? NAVY : "#94A3B8" }}
+          style={{ color: focused ? NAVY : "#94A3B8" }} // Icon color is always normal
         />
         {children(focused, {
           onFocus: () => setFocused(true),
           onBlur: () => setFocused(false),
         })}
       </div>
+      {/* Error စာသားပဲ အနီပြမယ် */}
       {error && (
-        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+        <p className="absolute bottom-1 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in duration-200">
           {error}
         </p>
       )}
@@ -222,7 +224,7 @@ function GenderDropdown({
   });
 
   return (
-    <div className="relative pb-5">
+    <div className="relative pb-6">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         Gender
       </label>
@@ -230,7 +232,7 @@ function GenderDropdown({
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
           <Users
             className="w-4 h-4 transition-colors duration-200"
-            style={{ color: error ? "#f43f5e" : (focused || open ? NAVY : "#94A3B8") }}
+            style={{ color: focused || open ? NAVY : "#94A3B8" }}
           />
         </div>
         <button
@@ -240,7 +242,7 @@ function GenderDropdown({
             setFocused(true);
           }}
           className="hiu-no-ring w-full pl-11 pr-10 py-3 rounded-2xl text-sm font-bold cursor-pointer transition-all duration-200 text-left"
-          style={inputStyle(focused || open, !!error)}
+          style={inputStyle(focused || open)}
         >
           {value || <span className="text-slate-400 font-medium">Select gender</span>}
         </button>
@@ -266,7 +268,7 @@ function GenderDropdown({
         </PortalDropdown>
       </div>
       {error && (
-        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+        <p className="absolute bottom-1 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in duration-200">
           {error}
         </p>
       )}
@@ -297,7 +299,7 @@ function MajorDropdown({
   });
 
   return (
-    <div className="relative pb-5">
+    <div className="relative pb-6">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         Academic Major
       </label>
@@ -305,7 +307,7 @@ function MajorDropdown({
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
           <GraduationCap
             className="w-4 h-4 transition-colors duration-200"
-            style={{ color: error ? "#f43f5e" : (focused || open ? NAVY : "#94A3B8") }}
+            style={{ color: focused || open ? NAVY : "#94A3B8" }}
           />
         </div>
         <button
@@ -315,7 +317,7 @@ function MajorDropdown({
             setFocused(true);
           }}
           className="hiu-no-ring w-full pl-11 pr-10 py-3 rounded-2xl text-sm font-bold cursor-pointer transition-all duration-200 text-left"
-          style={inputStyle(focused || open, !!error)}
+          style={inputStyle(focused || open)}
         >
           {selectedName ?? (
             <span className="text-slate-400 font-medium">Select a major department</span>
@@ -350,7 +352,7 @@ function MajorDropdown({
         )}
       </div>
       {error && (
-        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+        <p className="absolute bottom-1 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in duration-200">
           {error}
         </p>
       )}
@@ -402,85 +404,32 @@ export default function StudentModal({
     }
   }, [submitSuccess]);
 
-  // Clear errors when form data changes
-  const handleFormChange = (updatedForm: FormData) => {
+  if (!mounted) return null;
+
+  // Real-time validation handler
+  const handleFormChange = (key: keyof FormData, value: string | number) => {
+    const updatedForm = { ...form, [key]: value };
     onFormChange(updatedForm);
-    // Clear specific error when user types
-    const changedField = Object.keys(updatedForm).find(
-      (key) => (updatedForm as any)[key] !== (form as any)[key]
-    );
-    if (changedField) {
-      setErrors((prev) => ({ ...prev, [changedField]: "" }));
-    }
+
+    // Clear error immediately when typing
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const validateForm = () => {
-    let newErrors = { ...errors };
-    let isValid = true;
-
-    if (!form.studentId) {
-      newErrors.studentId = "ID is required";
-      isValid = false;
-    }
-    if (!form.name) {
-      newErrors.name = "Name is required";
-      isValid = false;
-    }
-    
-    // Email Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!form.email) {
-      newErrors.email = "Email is required";
-      isValid = false;
-    } else if (!emailRegex.test(form.email)) {
-      newErrors.email = "Invalid email format";
-      isValid = false;
-    }
-
-    // Age Validation
-    if (!form.age) {
-      newErrors.age = "Age is required";
-      isValid = false;
-    } else {
-      const ageNum = parseInt(form.age);
-      if (ageNum < 18 || ageNum > 30) {
-        newErrors.age = "Must be between 18-30";
-        isValid = false;
-      }
-    }
-
-    // Phone Validation
-    if (!form.phone) {
-      newErrors.phone = "Phone is required";
-      isValid = false;
-    } else if (form.phone.length < 9) {
-      newErrors.phone = "Invalid phone number";
-      isValid = false;
-    }
-
-    // Major Validation
-    if (!form.majorId) {
-      newErrors.majorId = "Major is required";
-      isValid = false;
-    }
-
-    // Gender Validation
-    if (!form.gender) {
-      newErrors.gender = "Gender is required";
-      isValid = false;
-    }
-
-    // Township Validation
-    if (!form.township) {
-      newErrors.township = "Township is required";
-      isValid = false;
-    }
+    const newErrors = {
+      studentId: form.studentId ? "" : "Student ID is required",
+      name: form.name ? "" : "Name is required",
+      email: form.email ? "" : "Email is required",
+      age: form.age ? "" : "Age is required",
+      phone: form.phone ? "" : "Phone is required",
+      majorId: form.majorId ? "" : "Major is required",
+      gender: form.gender ? "" : "Gender is required",
+      township: form.township ? "" : "Township is required",
+    };
 
     setErrors(newErrors);
-    return isValid;
+    return !Object.values(newErrors).some((e) => e !== "");
   };
-
-  if (!mounted) return null;
 
   return createPortal(
     <>
@@ -551,11 +500,11 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.studentId}
-                        onChange={(e) => handleFormChange({ ...form, studentId: e.target.value })}
-                        placeholder="Student ID"
+                        onChange={(e) => handleFormChange("studentId", e.target.value)}
+                        placeholder="# Student ID"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.studentId)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
@@ -568,11 +517,11 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.name}
-                        onChange={(e) => handleFormChange({ ...form, name: e.target.value })}
+                        onChange={(e) => handleFormChange("name", e.target.value)}
                         placeholder="Enter Full Name"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.name)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
@@ -585,11 +534,11 @@ export default function StudentModal({
                       <input
                         type="email"
                         value={form.email}
-                        onChange={(e) => handleFormChange({ ...form, email: e.target.value })}
+                        onChange={(e) => handleFormChange("email", e.target.value)}
                         placeholder="name@example.com"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.email)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
@@ -601,7 +550,7 @@ export default function StudentModal({
                     value={form.majorId}
                     majors={majors}
                     error={errors.majorId}
-                    onChange={(v) => handleFormChange({ ...form, majorId: v })}
+                    onChange={(v) => handleFormChange("majorId", v)}
                   />
                 </div>
 
@@ -611,10 +560,11 @@ export default function StudentModal({
                       <input
                         type="number"
                         value={form.age}
-                        onChange={(e) => handleFormChange({ ...form, age: e.target.value })}
+                        onChange={(e) => handleFormChange("age", e.target.value)}
                         autoComplete="off"
+                        placeholder="Age"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.age)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
@@ -624,7 +574,7 @@ export default function StudentModal({
                 <GenderDropdown
                   value={form.gender}
                   error={errors.gender}
-                  onChange={(v) => handleFormChange({ ...form, gender: v })}
+                  onChange={(v) => handleFormChange("gender", v)}
                 />
 
                 <div>
@@ -633,14 +583,11 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.phone}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          if (val.length <= 11) handleFormChange({ ...form, phone: val });
-                        }}
+                        onChange={(e) => handleFormChange("phone", e.target.value)}
                         placeholder="09xxxxxxxxx"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.phone)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
@@ -653,11 +600,11 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.township}
-                        onChange={(e) => handleFormChange({ ...form, township: e.target.value })}
+                        onChange={(e) => handleFormChange("township", e.target.value)}
                         placeholder="Location"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused, !!errors.township)}
+                        style={inputStyle(focused)}
                         {...handlers}
                       />
                     )}
