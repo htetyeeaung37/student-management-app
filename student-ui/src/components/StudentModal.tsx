@@ -64,9 +64,9 @@ interface Props {
 const NAVY = "#1A365D";
 const NAVY_DARK = "#0F172A";
 
-const inputStyle = (focused: boolean): React.CSSProperties => ({
+const inputStyle = (focused: boolean, hasError?: boolean): React.CSSProperties => ({
   backgroundColor: focused ? "#FFFFFF" : "#F8FAFC",
-  border: `1.5px solid ${focused ? NAVY : "#E2E8F0"}`,
+  border: `1.5px solid ${hasError ? "#f43f5e" : focused ? NAVY : "#E2E8F0"}`,
   color: NAVY,
   outline: "none",
   WebkitAppearance: "none",
@@ -77,31 +77,38 @@ const inputStyle = (focused: boolean): React.CSSProperties => ({
 function Field({
   label,
   icon: Icon,
+  error,
   children,
 }: {
   label: string;
   icon: React.ElementType;
+  error?: string;
   children: (
     focused: boolean,
-    handlers: { onFocus: () => void; onBlur: () => void },
+    handlers: { onFocus: () => void; onBlur: () => void }
   ) => React.ReactNode;
 }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div>
+    <div className="relative pb-5">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         {label}
       </label>
       <div className="relative flex items-center">
         <Icon
           className="absolute left-4 w-4 h-4 transition-colors duration-200 pointer-events-none z-10"
-          style={{ color: focused ? NAVY : "#94A3B8" }}
+          style={{ color: error ? "#f43f5e" : focused ? NAVY : "#94A3B8" }}
         />
         {children(focused, {
           onFocus: () => setFocused(true),
           onBlur: () => setFocused(false),
         })}
       </div>
+      {error && (
+        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -136,7 +143,7 @@ function PortalDropdown({
     >
       {children}
     </div>,
-    document.body,
+    document.body
   );
 }
 
@@ -180,7 +187,7 @@ function DropdownItem({
 function useOutsideClick(
   anchorRef: React.RefObject<HTMLDivElement>,
   portalId: string,
-  onClose: () => void,
+  onClose: () => void
 ) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -199,9 +206,11 @@ function useOutsideClick(
 function GenderDropdown({
   value,
   onChange,
+  error,
 }: {
   value: string;
   onChange: (v: string) => void;
+  error?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -213,7 +222,7 @@ function GenderDropdown({
   });
 
   return (
-    <div>
+    <div className="relative pb-5">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         Gender
       </label>
@@ -221,7 +230,7 @@ function GenderDropdown({
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
           <Users
             className="w-4 h-4 transition-colors duration-200"
-            style={{ color: focused || open ? NAVY : "#94A3B8" }}
+            style={{ color: error ? "#f43f5e" : (focused || open ? NAVY : "#94A3B8") }}
           />
         </div>
         <button
@@ -231,18 +240,14 @@ function GenderDropdown({
             setFocused(true);
           }}
           className="hiu-no-ring w-full pl-11 pr-10 py-3 rounded-2xl text-sm font-bold cursor-pointer transition-all duration-200 text-left"
-          style={inputStyle(focused || open)}
+          style={inputStyle(focused || open, !!error)}
         >
-          {value || (
-            <span className="text-slate-400 font-medium">Select gender</span>
-          )}
+          {value || <span className="text-slate-400 font-medium">Select gender</span>}
         </button>
         <ChevronDown
           className="absolute right-4 top-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform duration-200"
           style={{
-            transform: open
-              ? "translateY(-50%) rotate(180deg)"
-              : "translateY(-50%)",
+            transform: open ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
           }}
         />
         <PortalDropdown anchorRef={ref} open={open} panelId="gender-panel">
@@ -260,6 +265,11 @@ function GenderDropdown({
           ))}
         </PortalDropdown>
       </div>
+      {error && (
+        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -269,10 +279,12 @@ function MajorDropdown({
   value,
   majors,
   onChange,
+  error,
 }: {
   value: string;
   majors: Major[];
   onChange: (v: string) => void;
+  error?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -285,7 +297,7 @@ function MajorDropdown({
   });
 
   return (
-    <div>
+    <div className="relative pb-5">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         Academic Major
       </label>
@@ -293,7 +305,7 @@ function MajorDropdown({
         <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
           <GraduationCap
             className="w-4 h-4 transition-colors duration-200"
-            style={{ color: focused || open ? NAVY : "#94A3B8" }}
+            style={{ color: error ? "#f43f5e" : (focused || open ? NAVY : "#94A3B8") }}
           />
         </div>
         <button
@@ -303,20 +315,16 @@ function MajorDropdown({
             setFocused(true);
           }}
           className="hiu-no-ring w-full pl-11 pr-10 py-3 rounded-2xl text-sm font-bold cursor-pointer transition-all duration-200 text-left"
-          style={inputStyle(focused || open)}
+          style={inputStyle(focused || open, !!error)}
         >
           {selectedName ?? (
-            <span className="text-slate-400 font-medium">
-              Select a major department
-            </span>
+            <span className="text-slate-400 font-medium">Select a major department</span>
           )}
         </button>
         <ChevronDown
           className="absolute right-4 top-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform duration-200"
           style={{
-            transform: open
-              ? "translateY(-50%) rotate(180deg)"
-              : "translateY(-50%)",
+            transform: open ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
           }}
         />
         {open && (
@@ -341,6 +349,11 @@ function MajorDropdown({
           </div>
         )}
       </div>
+      {error && (
+        <p className="absolute bottom-0 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -361,11 +374,18 @@ export default function StudentModal({
 }: Props) {
   const [mounted, setMounted] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [idError, setIdError] = useState("");
-  const [nameError, setNameError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [ageError, setAgeError] = useState("");
-  const [phoneError, setPhoneError] = useState("");
+
+  // Validation States
+  const [errors, setErrors] = useState({
+    studentId: "",
+    name: "",
+    email: "",
+    age: "",
+    phone: "",
+    majorId: "",
+    gender: "",
+    township: "",
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -381,6 +401,84 @@ export default function StudentModal({
       return () => clearTimeout(timer);
     }
   }, [submitSuccess]);
+
+  // Clear errors when form data changes
+  const handleFormChange = (updatedForm: FormData) => {
+    onFormChange(updatedForm);
+    // Clear specific error when user types
+    const changedField = Object.keys(updatedForm).find(
+      (key) => (updatedForm as any)[key] !== (form as any)[key]
+    );
+    if (changedField) {
+      setErrors((prev) => ({ ...prev, [changedField]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    let newErrors = { ...errors };
+    let isValid = true;
+
+    if (!form.studentId) {
+      newErrors.studentId = "ID is required";
+      isValid = false;
+    }
+    if (!form.name) {
+      newErrors.name = "Name is required";
+      isValid = false;
+    }
+    
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.email) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(form.email)) {
+      newErrors.email = "Invalid email format";
+      isValid = false;
+    }
+
+    // Age Validation
+    if (!form.age) {
+      newErrors.age = "Age is required";
+      isValid = false;
+    } else {
+      const ageNum = parseInt(form.age);
+      if (ageNum < 18 || ageNum > 30) {
+        newErrors.age = "Must be between 18-30";
+        isValid = false;
+      }
+    }
+
+    // Phone Validation
+    if (!form.phone) {
+      newErrors.phone = "Phone is required";
+      isValid = false;
+    } else if (form.phone.length < 9) {
+      newErrors.phone = "Invalid phone number";
+      isValid = false;
+    }
+
+    // Major Validation
+    if (!form.majorId) {
+      newErrors.majorId = "Major is required";
+      isValid = false;
+    }
+
+    // Gender Validation
+    if (!form.gender) {
+      newErrors.gender = "Gender is required";
+      isValid = false;
+    }
+
+    // Township Validation
+    if (!form.township) {
+      newErrors.township = "Township is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   if (!mounted) return null;
 
@@ -446,97 +544,54 @@ export default function StudentModal({
             </div>
 
             <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
-              {error && (
-                <div className="flex items-center gap-3 p-4 rounded-2xl mb-6 bg-rose-50 border border-rose-100 text-rose-600">
-                  <AlertCircle className="w-5 h-5 shrink-0" />
-                  <p className="text-xs font-bold">{error}</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
                 <div className="md:col-span-1">
-                  <Field label="Student ID" icon={Hash}>
+                  <Field label="Student ID" icon={Hash} error={errors.studentId}>
                     {(focused, handlers) => (
-                      <div className="w-full relative">
-                        <input
-                          type="text"
-                          value={form.studentId}
-                          onChange={(e) => {
-                            onFormChange({
-                              ...form,
-                              studentId: e.target.value,
-                            });
-                            if (e.target.value) setIdError("");
-                          }}
-                          placeholder="Student ID"
-                          autoComplete="off"
-                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                          style={inputStyle(focused)}
-                          {...handlers}
-                        />
-                        {idError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
-                            {idError}
-                          </p>
-                        )}
-                      </div>
+                      <input
+                        type="text"
+                        value={form.studentId}
+                        onChange={(e) => handleFormChange({ ...form, studentId: e.target.value })}
+                        placeholder="Student ID"
+                        autoComplete="off"
+                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                        style={inputStyle(focused, !!errors.studentId)}
+                        {...handlers}
+                      />
                     )}
                   </Field>
                 </div>
 
                 <div className="md:col-span-1">
-                  <Field label="Full Name" icon={User}>
+                  <Field label="Full Name" icon={User} error={errors.name}>
                     {(focused, handlers) => (
-                      <div className="w-full relative">
-                        <input
-                          type="text"
-                          value={form.name}
-                          onChange={(e) => {
-                            onFormChange({
-                              ...form,
-                              name: e.target.value,
-                            });
-                            if (e.target.value) setNameError("");
-                          }}
-                          placeholder="Enter Full Name"
-                          autoComplete="off"
-                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                          style={inputStyle(focused)}
-                          {...handlers}
-                        />
-                        {nameError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
-                            {nameError}
-                          </p>
-                        )}
-                      </div>
+                      <input
+                        type="text"
+                        value={form.name}
+                        onChange={(e) => handleFormChange({ ...form, name: e.target.value })}
+                        placeholder="Enter Full Name"
+                        autoComplete="off"
+                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                        style={inputStyle(focused, !!errors.name)}
+                        {...handlers}
+                      />
                     )}
                   </Field>
                 </div>
 
                 <div className="md:col-span-2">
-                  <Field label="Email Address" icon={Mail}>
+                  <Field label="Email Address" icon={Mail} error={errors.email}>
                     {(focused, handlers) => (
-                      <div className="w-full relative">
-                        <input
-                          type="email"
-                          value={form.email}
-                          onChange={(e) => {
-                            onFormChange({ ...form, email: e.target.value });
-                            if (e.target.value) setEmailError("");
-                          }}
-                          placeholder="name@example.com"
-                          autoComplete="off"
-                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                          style={inputStyle(focused)}
-                          {...handlers}
-                        />
-                        {emailError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
-                            {emailError}
-                          </p>
-                        )}
-                      </div>
+                      <input
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => handleFormChange({ ...form, email: e.target.value })}
+                        placeholder="name@example.com"
+                        autoComplete="off"
+                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                        style={inputStyle(focused, !!errors.email)}
+                        {...handlers}
+                      />
                     )}
                   </Field>
                 </div>
@@ -545,92 +600,64 @@ export default function StudentModal({
                   <MajorDropdown
                     value={form.majorId}
                     majors={majors}
-                    onChange={(v) => onFormChange({ ...form, majorId: v })}
+                    error={errors.majorId}
+                    onChange={(v) => handleFormChange({ ...form, majorId: v })}
                   />
                 </div>
 
                 <div>
-                  <Field label="Age" icon={Calendar}>
-                    {(focused: any, handlers: any) => (
-                      <div className="w-full relative">
-                        <input
-                          type="number"
-                          value={form.age}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            onFormChange({ ...form, age: val });
-
-                            if (val !== "") {
-                              const num = parseInt(val);
-                              if (num < 18 || num > 30) {
-                                setAgeError("Age must be between 18 and 30");
-                              } else {
-                                setAgeError("");
-                              }
-                            }
-                          }}
-                          autoComplete="off"
-                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                          style={inputStyle(focused)}
-                          {...handlers}
-                        />
-                        {ageError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold mt-1.5 ml-2 tracking-wider animate-in fade-in duration-200">
-                            {ageError}
-                          </p>
-                        )}
-                      </div>
+                  <Field label="Age" icon={Calendar} error={errors.age}>
+                    {(focused, handlers) => (
+                      <input
+                        type="number"
+                        value={form.age}
+                        onChange={(e) => handleFormChange({ ...form, age: e.target.value })}
+                        autoComplete="off"
+                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                        style={inputStyle(focused, !!errors.age)}
+                        {...handlers}
+                      />
                     )}
                   </Field>
                 </div>
 
                 <GenderDropdown
                   value={form.gender}
-                  onChange={(v) => onFormChange({ ...form, gender: v })}
+                  error={errors.gender}
+                  onChange={(v) => handleFormChange({ ...form, gender: v })}
                 />
 
                 <div>
-                  <Field label="Phone" icon={Phone}>
+                  <Field label="Phone" icon={Phone} error={errors.phone}>
                     {(focused, handlers) => (
-                      <div className="w-full relative">
-                        <input
-                          type="text"
-                          value={form.phone}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, "");
-                            if (val.length <= 11)
-                              onFormChange({ ...form, phone: val });
-                            if (val.length >= 9) setPhoneError("");
-                          }}
-                          placeholder="09xxxxxxxxx"
-                          autoComplete="off"
-                          className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                          style={inputStyle(focused)}
-                          {...handlers}
-                        />
-                        {phoneError && (
-                          <p className="absolute -bottom-5 left-2 text-[10px] text-rose-500 font-bold tracking-wider animate-in fade-in">
-                            {phoneError}
-                          </p>
-                        )}
-                      </div>
+                      <input
+                        type="text"
+                        value={form.phone}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val.length <= 11) handleFormChange({ ...form, phone: val });
+                        }}
+                        placeholder="09xxxxxxxxx"
+                        autoComplete="off"
+                        className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
+                        style={inputStyle(focused, !!errors.phone)}
+                        {...handlers}
+                      />
                     )}
                   </Field>
                 </div>
 
                 <div>
-                  <Field label="Township" icon={MapPin}>
+                  <Field label="Township" icon={MapPin} error={errors.township}>
                     {(focused, handlers) => (
                       <input
                         type="text"
                         value={form.township}
-                        onChange={(e) =>
-                          onFormChange({ ...form, township: e.target.value })
-                        }
+                        onChange={(e) => handleFormChange({ ...form, township: e.target.value })}
                         placeholder="Location"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
-                        style={inputStyle(focused)}
+                        style={inputStyle(focused, !!errors.township)}
                         {...handlers}
                       />
                     )}
@@ -648,35 +675,7 @@ export default function StudentModal({
               </button>
               <button
                 onClick={() => {
-                  let hasError = false;
-
-                  if (!form.studentId) {
-                    setIdError("ID is required");
-                    hasError = true;
-                  }
-                  if (!form.name) {
-                    setNameError("Name is required");
-                    hasError = true;
-                  }
-                  if (!form.age) {
-                    setAgeError("Age is required");
-                    hasError = true;
-                  } else if (
-                    parseInt(form.age) < 18 ||
-                    parseInt(form.age) > 30
-                  ) {
-                    hasError = true;
-                  }
-
-                  if (!form.phone) {
-                    setPhoneError("Phone is required");
-                    hasError = true;
-                  } else if (form.phone.length < 9) {
-                    setPhoneError("Invalid phone number");
-                    hasError = true;
-                  }
-
-                  if (!hasError) {
+                  if (validateForm()) {
                     onSubmit();
                   }
                 }}
@@ -723,6 +722,6 @@ export default function StudentModal({
         </div>
       )}
     </>,
-    document.body,
+    document.body
   );
 }
