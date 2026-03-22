@@ -420,6 +420,15 @@ export default function StudentModal({
 
     // Clear error immediately when typing
     setErrors((prev) => ({ ...prev, [key]: "" }));
+
+    if (key === "age") {
+      const ageNum = Number(value);
+      if (value !== "" && !isNaN(ageNum)) {
+        if (ageNum < 18 || ageNum > 30) {
+          setErrors((prev) => ({ ...prev, age: "Age must be 18 to 30" }));
+        }
+      }
+    }
   };
 
   const validateForm = () => {
