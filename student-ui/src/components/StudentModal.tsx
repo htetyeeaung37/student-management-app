@@ -589,6 +589,8 @@ export default function StudentModal({
                         }
                         autoComplete="off"
                         placeholder="Age"
+                        min={18}
+                        max={30}
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
                         style={inputStyle(focused)}
                         {...handlers}
