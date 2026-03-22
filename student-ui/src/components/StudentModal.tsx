@@ -64,10 +64,9 @@ interface Props {
 const NAVY = "#1A365D";
 const NAVY_DARK = "#0F172A";
 
-// Input Style - Border နဲ့ Icon အရောင်မပြောင်းစေဖို့ Error prop ကို ဖယ်ရှားလိုက်ပါတယ်
 const inputStyle = (focused: boolean): React.CSSProperties => ({
   backgroundColor: focused ? "#FFFFFF" : "#F8FAFC",
-  border: `1.5px solid ${focused ? NAVY : "#E2E8F0"}`, // Always Navy on focus, Gray otherwise
+  border: `1.5px solid ${focused ? NAVY : "#E2E8F0"}`,
   color: NAVY,
   outline: "none",
   WebkitAppearance: "none",
@@ -86,19 +85,19 @@ function Field({
   error?: string;
   children: (
     focused: boolean,
-    handlers: { onFocus: () => void; onBlur: () => void }
+    handlers: { onFocus: () => void; onBlur: () => void },
   ) => React.ReactNode;
 }) {
   const [focused, setFocused] = useState(false);
   return (
-    <div className="relative pb-6"> {/* pb-6 adds space for absolute error message */}
+    <div className="relative pb-6">
       <label className="block text-[10px] font-black uppercase tracking-[0.1em] mb-1.5 ml-1 text-slate-400">
         {label}
       </label>
       <div className="relative flex items-center">
         <Icon
           className="absolute left-4 w-4 h-4 transition-colors duration-200 pointer-events-none z-10"
-          style={{ color: focused ? NAVY : "#94A3B8" }} // Icon color is always normal
+          style={{ color: focused ? NAVY : "#94A3B8" }}
         />
         {children(focused, {
           onFocus: () => setFocused(true),
@@ -145,7 +144,7 @@ function PortalDropdown({
     >
       {children}
     </div>,
-    document.body
+    document.body,
   );
 }
 
@@ -189,7 +188,7 @@ function DropdownItem({
 function useOutsideClick(
   anchorRef: React.RefObject<HTMLDivElement>,
   portalId: string,
-  onClose: () => void
+  onClose: () => void,
 ) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -244,12 +243,16 @@ function GenderDropdown({
           className="hiu-no-ring w-full pl-11 pr-10 py-3 rounded-2xl text-sm font-bold cursor-pointer transition-all duration-200 text-left"
           style={inputStyle(focused || open)}
         >
-          {value || <span className="text-slate-400 font-medium">Select gender</span>}
+          {value || (
+            <span className="text-slate-400 font-medium">Select gender</span>
+          )}
         </button>
         <ChevronDown
           className="absolute right-4 top-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform duration-200"
           style={{
-            transform: open ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
+            transform: open
+              ? "translateY(-50%) rotate(180deg)"
+              : "translateY(-50%)",
           }}
         />
         <PortalDropdown anchorRef={ref} open={open} panelId="gender-panel">
@@ -320,13 +323,17 @@ function MajorDropdown({
           style={inputStyle(focused || open)}
         >
           {selectedName ?? (
-            <span className="text-slate-400 font-medium">Select a major department</span>
+            <span className="text-slate-400 font-medium">
+              Select a major department
+            </span>
           )}
         </button>
         <ChevronDown
           className="absolute right-4 top-1/2 w-4 h-4 text-slate-400 pointer-events-none transition-transform duration-200"
           style={{
-            transform: open ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)",
+            transform: open
+              ? "translateY(-50%) rotate(180deg)"
+              : "translateY(-50%)",
           }}
         />
         {open && (
@@ -416,11 +423,18 @@ export default function StudentModal({
   };
 
   const validateForm = () => {
+    const ageNum = Number(form.age);
     const newErrors = {
       studentId: form.studentId ? "" : "Student ID is required",
       name: form.name ? "" : "Name is required",
       email: form.email ? "" : "Email is required",
-      age: form.age ? "" : "Age is required",
+      age: !form.age
+        ? "Age is required"
+        : isNaN(ageNum)
+          ? "Must be a number"
+          : ageNum < 18 || ageNum > 30
+            ? "Age must be 18 to 30"
+            : "",
       phone: form.phone ? "" : "Phone is required",
       majorId: form.majorId ? "" : "Major is required",
       gender: form.gender ? "" : "Gender is required",
@@ -495,12 +509,18 @@ export default function StudentModal({
             <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-5">
                 <div className="md:col-span-1">
-                  <Field label="Student ID" icon={Hash} error={errors.studentId}>
+                  <Field
+                    label="Student ID"
+                    icon={Hash}
+                    error={errors.studentId}
+                  >
                     {(focused, handlers) => (
                       <input
                         type="text"
                         value={form.studentId}
-                        onChange={(e) => handleFormChange("studentId", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("studentId", e.target.value)
+                        }
                         placeholder="# Student ID"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -517,7 +537,9 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.name}
-                        onChange={(e) => handleFormChange("name", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("name", e.target.value)
+                        }
                         placeholder="Enter Full Name"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -534,7 +556,9 @@ export default function StudentModal({
                       <input
                         type="email"
                         value={form.email}
-                        onChange={(e) => handleFormChange("email", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("email", e.target.value)
+                        }
                         placeholder="name@example.com"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -560,7 +584,9 @@ export default function StudentModal({
                       <input
                         type="number"
                         value={form.age}
-                        onChange={(e) => handleFormChange("age", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("age", e.target.value)
+                        }
                         autoComplete="off"
                         placeholder="Age"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -583,7 +609,9 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.phone}
-                        onChange={(e) => handleFormChange("phone", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("phone", e.target.value)
+                        }
                         placeholder="09xxxxxxxxx"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -600,7 +628,9 @@ export default function StudentModal({
                       <input
                         type="text"
                         value={form.township}
-                        onChange={(e) => handleFormChange("township", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("township", e.target.value)
+                        }
                         placeholder="Location"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
@@ -669,6 +699,6 @@ export default function StudentModal({
         </div>
       )}
     </>,
-    document.body
+    document.body,
   );
 }
