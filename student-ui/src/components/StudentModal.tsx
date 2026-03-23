@@ -429,14 +429,37 @@ export default function StudentModal({
         }
       }
     }
+
+    if (key === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value !== "" && !emailRegex.test(String(value))) {
+        setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+      }
+    }
+
+    if (key === "phone") {
+      const digits = String(value).replace(/\D/g, "");
+      if (digits.length > 11) {
+        setErrors((prev) => ({
+          ...prev,
+          phone: "Phone must be max 11 digits",
+        }));
+      }
+    }
   };
 
   const validateForm = () => {
     const ageNum = Number(form.age);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneDigits = form.phone.replace(/\D/g, "");
     const newErrors = {
       studentId: form.studentId ? "" : "Student ID is required",
       name: form.name ? "" : "Name is required",
-      email: form.email ? "" : "Email is required",
+      email: !form.email
+        ? "Email is required"
+        : !emailRegex.test(form.email)
+          ? "Invalid email format"
+          : "",
       age: !form.age
         ? "Age is required"
         : isNaN(ageNum)
@@ -444,7 +467,11 @@ export default function StudentModal({
           : ageNum < 18 || ageNum > 30
             ? "Age must be 18 to 30"
             : "",
-      phone: form.phone ? "" : "Phone is required",
+      phone: !form.phone
+        ? "Phone is required"
+        : phoneDigits.length > 11
+          ? "Phone must be max 11 digits"
+          : "",
       majorId: form.majorId ? "" : "Major is required",
       gender: form.gender ? "" : "Gender is required",
       township: form.township ? "" : "Township is required",
