@@ -557,7 +557,7 @@ export default function StudentModal({
                         onChange={(e) =>
                           handleFormChange("studentId", e.target.value)
                         }
-                        placeholder="# Student ID"
+                        placeholder="Student ID"
                         autoComplete="off"
                         className="hiu-no-ring w-full pl-11 pr-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200"
                         style={inputStyle(focused)}
